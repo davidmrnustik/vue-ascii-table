@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import module from './a.out';
+import module from '../public/a.out.js';
 
 let instance = {
   ready: new Promise(resolve => {
