@@ -1,7 +1,14 @@
 <template>
   <v-app>
     <input v-model="tableFormat" @change="onChange" type="number" min="1" max="4" placeholder="Type a table format">
-    <p>Format is: <strong>{{tableFormat}}</strong></p>
+    <v-checkbox
+        v-model="tableDense"
+        :label="`Table dense: ${tableDense.toString()}`"
+    ></v-checkbox>
+    <v-checkbox
+        v-model="tableDark"
+        :label="`Dark: ${tableDark.toString()}`"
+    ></v-checkbox>
 
     <v-data-table
         v-if="tableData"
@@ -11,15 +18,35 @@
         item-key="name"
         class="elevation-1"
         :search="search"
+        hide-default-footer
+        :dense="tableDense"
+        :dark="tableDark"
     >
-      <template v-slot:top>
-        <v-text-field
-            v-model="search"
-            label="Search"
-            class="mx-4"
-        ></v-text-field>
-    </template>
+        <template v-slot:top>
+          <v-text-field
+              v-model="search"
+              label="Search"
+              class="mx-4"
+          ></v-text-field>
+      </template>
 
+      <template v-slot:body="{ items }">
+        <tbody>
+        <tr
+            v-for="item in items"
+            :key="item.name"
+        >
+          <template v-for="(value, key, index) in item">
+            <template v-if="getMarkedItem.includes(index)">
+              <td v-bind:key="key" class="line" v-on:focus="$event.target.select()" ref="key"><mark>{{ value }}</mark></td>
+            </template>
+            <template v-else>
+              <td v-bind:key="key">{{ value }}</td>
+            </template>
+          </template>
+        </tr>
+        </tbody>
+      </template>
     </v-data-table>
   </v-app>
 </template>
@@ -48,7 +75,10 @@ export default {
       tableFormat: 4,
       title: "Ascii table",
       tableData: [],
-      search: ""
+      search: "",
+      charColor: "#000",
+      tableDense: false,
+      tableDark: false,
     }
   },
   computed: {
@@ -57,6 +87,9 @@ export default {
     },
     getTableData() {
       return this.tableData[1]
+    },
+    getMarkedItem() {
+      return Array.from({ length: this.tableFormat + 1 }, (v, i) => i * 5 - 1).slice(1)
     }
   },
   methods: {
@@ -108,10 +141,23 @@ export default {
       return value != null &&
           search != null &&
           value.indexOf(search) !== -1
-    }
+    },
+    getColor (calories) {
+      if (calories > 400) return 'red'
+      else if (calories > 200) return 'orange'
+      else return 'green'
+    },
   },
   mounted() {
     this.getTable(this.tableFormat);
   }
 };
 </script>
+
+<style scoped>
+  mark {
+    color: red;
+    font-weight: bold;
+    background-color: transparent;
+  }
+</style>
