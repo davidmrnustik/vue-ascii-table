@@ -1,58 +1,36 @@
 <template>
   <v-app>
-    <input v-model="tableFormat" @change="onChange" type="number" min="1" max="4" placeholder="Type a table format">
-    <v-checkbox
-        v-model="tableDense"
-        :label="`Table dense: ${tableDense.toString()}`"
-    ></v-checkbox>
-    <v-checkbox
-        v-model="tableDark"
-        :label="`Dark: ${tableDark.toString()}`"
-    ></v-checkbox>
-
-    <v-data-table
-        v-if="tableData"
-        :headers="getHeaders"
-        :items="getTableData"
-        :items-per-page="127"
-        item-key="name"
-        class="elevation-1"
-        :search="search"
-        hide-default-footer
-        :dense="tableDense"
-        :dark="tableDark"
+    <v-container :fluid="true">
+      <ascii-table
+        :table-items="getTableData"
+        :table-headers="getHeaders"
+        @on-change-table-format="onChangeTableFormat"
+      ></ascii-table>
+      {{tableFormat}}
+    </v-container>
+    <v-snackbar
+      v-model="snackbar"
+      :timeout="timeoutSnackBar"
     >
-        <template v-slot:top>
-          <v-text-field
-              v-model="search"
-              label="Search"
-              class="mx-4"
-          ></v-text-field>
-      </template>
+      {{ snackbarText }}
 
-      <template v-slot:body="{ items }">
-        <tbody>
-        <tr
-            v-for="item in items"
-            :key="item.name"
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="blue"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
         >
-          <template v-for="(value, key, index) in item">
-            <template v-if="getMarkedItem.includes(index)">
-              <td v-bind:key="key" class="line" v-on:focus="$event.target.select()" ref="key"><mark>{{ value }}</mark></td>
-            </template>
-            <template v-else>
-              <td v-bind:key="key">{{ value }}</td>
-            </template>
-          </template>
-        </tr>
-        </tbody>
+          Close
+        </v-btn>
       </template>
-    </v-data-table>
+    </v-snackbar>
   </v-app>
 </template>
 
 <script>
 import module from './assets/js/a.out.js';
+import AsciiTable from "@/components/AsciiTable";
 
 let instance = {
   ready: new Promise(resolve => {
@@ -75,26 +53,28 @@ export default {
       tableFormat: 4,
       title: "Ascii table",
       tableData: [],
-      search: "",
-      charColor: "#000",
-      tableDense: false,
-      tableDark: false,
+      snackbar: false,
+      timeoutSnackBar: 1000,
+      snackbarText: "Value has been copied to clipboard."
     }
+  },
+  components: {
+    AsciiTable
   },
   computed: {
     getHeaders() {
       return this.tableData[0];
     },
     getTableData() {
+      console.log("this.tableData[1]", this.tableData[1]);
       return this.tableData[1]
-    },
-    getMarkedItem() {
-      return Array.from({ length: this.tableFormat + 1 }, (v, i) => i * 5 - 1).slice(1)
     }
   },
   methods: {
-    onChange(e) {
-      this.getTable(e.target.value);
+    onChangeTableFormat(e) {
+      console.log("comes from onChangeTableFormat", e);
+      this.tableFormat = e;
+      this.getTable(e);
     },
     prepareData(data) {
       // [["Dec", "Oct", "Bin"], [0, "x80", "00000000"]]
@@ -107,6 +87,7 @@ export default {
       ]
        */
       const parsed = JSON.parse(data);
+      console.log("parsed:", parsed);
       let headerData = []
       const cellData = []
 
@@ -130,22 +111,12 @@ export default {
         }
       })
 
+      console.log("cellData", cellData);
+
       return [headerData, cellData]
     },
     getTable(value) {
       instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value)));
-    },
-    filterOnlyDec(value, search) {
-      console.log("value", value)
-      console.log("search", search)
-      return value != null &&
-          search != null &&
-          value.indexOf(search) !== -1
-    },
-    getColor (calories) {
-      if (calories > 400) return 'red'
-      else if (calories > 200) return 'orange'
-      else return 'green'
     },
   },
   mounted() {
@@ -154,10 +125,34 @@ export default {
 };
 </script>
 
-<style scoped>
-  mark {
+<style >
+  td mark {
     color: red;
     font-weight: bold;
     background-color: transparent;
+  }
+  .theme--dark td mark {
+    color: yellow;
+  }
+  td.value {
+    border-bottom: none !important;
+  }
+  td.value:hover {
+    background-color: rgba(0, 0, 0, 0.07);
+  }
+  .theme--dark td.value:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+  th.line, td.value.line {
+    border-right: thin solid rgba(0, 0, 0, 0.12) !important;
+  }
+  .theme--dark th.line, .theme--dark td.value.line {
+    border-right: thin solid rgba(255, 255, 255, 0.12) !important;
+  }
+  thead th.line:last-child, tbody td.value.line:last-child {
+    border-right: none !important;
+  }
+  .theme--dark .v-slider__thumb-label.white {
+    /*color: black !important;*/
   }
 </style>
