@@ -4,7 +4,8 @@
       <ascii-table
         :table-items="getTableData"
         :table-headers="getHeaders"
-        @on-change-table-format="onChangeTableFormat"
+        @onChangeTableFormat="onChangeTableFormat"
+        @copyValue="copyValue"
       ></ascii-table>
       {{tableFormat}}
     </v-container>
@@ -72,7 +73,6 @@ export default {
   },
   methods: {
     onChangeTableFormat(e) {
-      console.log("comes from onChangeTableFormat", e);
       this.tableFormat = e;
       this.getTable(e);
     },
@@ -118,6 +118,9 @@ export default {
     getTable(value) {
       instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value)));
     },
+    copyValue(value) {
+      navigator.clipboard.writeText(value).then(() => this.snackbar = true);
+    }
   },
   mounted() {
     this.getTable(this.tableFormat);

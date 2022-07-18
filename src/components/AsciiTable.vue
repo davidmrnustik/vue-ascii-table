@@ -67,10 +67,10 @@
       >
         <template v-for="(value, key, index) in item">
           <template v-if="getMarkedItem.includes(index)">
-            <td @click="copyValue(value)" v-bind:key="key" class="value line"><mark>{{ value }}</mark></td>
+            <td @click="$emit('copyValue', value)" v-bind:key="key" class="value line"><mark>{{ value }}</mark></td>
           </template>
           <template v-else>
-            <td @click="copyValue(value)" v-bind:key="key" class="value">{{ value }}</td>
+            <td @click="$emit('copyValue', value)" v-bind:key="key" class="value">{{ value }}</td>
           </template>
         </template>
       </tr>
@@ -86,17 +86,11 @@ export default {
     tableItems: Array,
     tableHeaders: Array
   },
-  emits: ['onChangeTableFormat'],
   data() {
     return {
       search: "",
       tableDense: false,
       tableFormat: 4
-    }
-  },
-  methods: {
-    copyValue(value) {
-      navigator.clipboard.writeText(value).then(() => this.snackbar = true);
     }
   },
   computed: {
