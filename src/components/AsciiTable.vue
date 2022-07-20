@@ -67,7 +67,7 @@
       >
         <template v-for="(value, key, index) in item">
           <template v-if="getMarkedItem.includes(index)">
-            <td @click="$emit('copyValue', value)" v-bind:key="key" class="value line"><mark>{{ value }}</mark></td>
+            <td @click="$emit('copyValue', value)" v-bind:key="key" class="value line" v-html="getHighlightedValue(value)"></td>
           </template>
           <template v-else>
             <td @click="$emit('copyValue', value)" v-bind:key="key" class="value">{{ value }}</td>
@@ -97,6 +97,17 @@ export default {
     getMarkedItem() {
       return Array.from({ length: this.tableFormat + 1 }, (v, i) => i * 5 - 1).slice(1)
     },
+  },
+  methods: {
+    getHighlightedValue(value) {
+      const regexp = /([A-Z0-9]+)\s+(\(.*\))/;
+
+      if (regexp.test(value)) {
+        const [,code, description] = regexp.exec(value);
+        return `<mark>${code}</mark>&nbsp;${description}`;
+      }
+      return `<mark>${value}</mark>`;
+    }
   }
 };
 </script>
