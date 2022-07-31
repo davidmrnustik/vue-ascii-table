@@ -52,7 +52,7 @@
       <thead>
       <tr>
         <template v-for="(h, index) in headers">
-          <th v-bind:key="h.text + index" class="line" v-if="getMarkedItem.includes(index)">{{h.text}}</th>
+          <th v-bind:key="h.text + index" class="line" v-if="getDivisionItem.includes(index)">{{h.text}}</th>
           <th v-bind:key="h.text + index" v-else>{{h.text}}</th>
         </template>
       </tr>
@@ -66,12 +66,7 @@
         :key="item.name"
       >
         <template v-for="(value, key, index) in item">
-          <template v-if="getMarkedItem.includes(index)">
-            <td @click="$emit('copyValue', value)" v-bind:key="key" class="value line" v-html="getHighlightedValue(value)"></td>
-          </template>
-          <template v-else>
-            <td @click="$emit('copyValue', value)" v-bind:key="key" class="value">{{ value }}</td>
-          </template>
+          <td @click="$emit('copyValue', value)" v-bind:key="key" :class="`value${getDivisionItem.includes(index) ? ' line' : ''}`" v-html="getHighlightedValue(value, index)"></td>
         </template>
       </tr>
       </tbody>
@@ -94,19 +89,30 @@ export default {
     }
   },
   computed: {
-    getMarkedItem() {
-      return Array.from({ length: this.tableFormat + 1 }, (v, i) => i * 5 - 1).slice(1)
+    getDivisionItem() {
+      return Array.from({ length: this.tableFormat + 1 }, (v, i) => i * this.getNumberOfColumns - 1).slice(1)
     },
+    getStyleMap() {
+      const styles = [
+        "%value%",
+        "%value%",
+        "%value%",
+        "%value%",
+        "<mark>%value%</mark>",
+        "<em>%value%</em>"
+      ];
+
+      return Array.from({ length: this.tableFormat * this.getNumberOfColumns - 1 }, () => [...styles]).flat();
+    },
+    getNumberOfColumns() {
+      return this.tableHeaders && this.tableHeaders.length / this.tableFormat;
+    }
   },
   methods: {
-    getHighlightedValue(value) {
-      const regexp = /([A-Z0-9]+)\s+(\(.*\))/;
+    getHighlightedValue(value, index) {
+      const style = this.getStyleMap[index.toString()];
 
-      if (regexp.test(value)) {
-        const [,code, description] = regexp.exec(value);
-        return `<mark>${code}</mark>&nbsp;${description}`;
-      }
-      return `<mark>${value}</mark>`;
+      return style.replace(/%value%/gi, value);
     }
   }
 };
