@@ -45,6 +45,13 @@
             label="Theme Dark"
           ></v-switch>
         </v-col>
+        <v-col>
+          <v-switch
+            v-model="extended"
+            @change="$emit('onChangeTableExtended', extended)"
+            label="HTML Entities"
+          ></v-switch>
+        </v-col>
       </v-row>
     </template>
 
@@ -66,7 +73,9 @@
         :key="item.name"
       >
         <template v-for="(value, key, index) in item">
-          <td @click="$emit('copyValue', value)" v-bind:key="key" :class="`value${getDivisionItem.includes(index) ? ' line' : ''}`" v-html="getHighlightedValue(value, index)"></td>
+          <td @click="$emit('copyValue', value)" v-bind:key="key" v-if="isNoHtmlField(index)" :class="`value${getDivisionItem.includes(index) ? ' line' : ''}`">
+            {{ getHighlightedValue(value, index) }}</td>
+          <td @click="$emit('copyValue', value)" v-bind:key="key" v-else :class="`value${getDivisionItem.includes(index) ? ' line' : ''}`" v-html="getHighlightedValue(value, index)"></td>
         </template>
       </tr>
       </tbody>
@@ -85,7 +94,8 @@ export default {
     return {
       search: "",
       tableDense: false,
-      tableFormat: 4
+      tableFormat: 4,
+      extended: false
     }
   },
   computed: {
@@ -93,14 +103,25 @@ export default {
       return Array.from({ length: this.tableFormat + 1 }, (v, i) => i * this.getNumberOfColumns - 1).slice(1)
     },
     getStyleMap() {
-      const styles = [
-        "%value%",
-        "%value%",
-        "%value%",
-        "%value%",
-        "<mark>%value%</mark>",
-        "<em>%value%</em>"
-      ];
+      const styles = this.extended ?
+        [
+          "%value%",
+          "%value%",
+          "%value%",
+          "%value%",
+          "NO_HTML",
+          "NO_HTML",
+          "<mark>%value%</mark>",
+          "<em>%value%</em>"
+        ] :
+        [
+          "%value%",
+          "%value%",
+          "%value%",
+          "%value%",
+          "<mark>%value%</mark>",
+          "<em>%value%</em>"
+        ];
 
       return Array.from({ length: this.tableFormat * this.getNumberOfColumns - 1 }, () => [...styles]).flat();
     },
@@ -109,10 +130,15 @@ export default {
     }
   },
   methods: {
+    isNoHtmlField(index) {
+      const style = this.getStyleMap[index.toString()];
+
+      return style === "NO_HTML";
+    },
     getHighlightedValue(value, index) {
       const style = this.getStyleMap[index.toString()];
 
-      return style.replace(/%value%/gi, value);
+      return style.replace(/(NO_HTML|%value%)/gi, value);
     }
   }
 };

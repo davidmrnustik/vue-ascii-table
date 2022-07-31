@@ -5,6 +5,7 @@
         :table-items="getTableData"
         :table-headers="getHeaders"
         @onChangeTableFormat="onChangeTableFormat"
+        @onChangeTableExtended="onChangeTableExtended"
         @copyValue="copyValue"
       ></ascii-table>
     </v-container>
@@ -55,7 +56,8 @@ export default {
       tableData: [],
       snackbar: false,
       timeoutSnackBar: 1000,
-      snackbarText: "Value has been copied to clipboard."
+      snackbarText: "Value has been copied to clipboard.",
+      extended: false
     }
   },
   components: {
@@ -72,7 +74,11 @@ export default {
   methods: {
     onChangeTableFormat(e) {
       this.tableFormat = e;
-      this.getTable(e);
+      this.getTable(e, this.extended);
+    },
+    onChangeTableExtended(e) {
+      this.extended = e;
+      this.getTable(this.tableFormat, e);
     },
     prepareData(data) {
       // [["Dec", "Oct", "Bin"], [0, "x80", "00000000"]]
@@ -102,7 +108,7 @@ export default {
           const res = row.reduce((acc, cur, index) => {
             return {
               ...acc,
-              [`${(parsed[0][index]).toLowerCase()}${index}`]: cur
+              [`${(parsed[0][index]).toLowerCase().replace(/\s/, "")}${index}`]: cur
             }
           }, {})
           cellData.push(res)
@@ -113,8 +119,8 @@ export default {
 
       return [headerData, cellData]
     },
-    getTable(value) {
-      instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value, false)));
+    getTable(value, ext) {
+      instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value, ext)));
     },
     copyValue(value) {
       navigator.clipboard.writeText(value).then(() => this.snackbar = true);
