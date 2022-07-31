@@ -7,7 +7,6 @@
         @onChangeTableFormat="onChangeTableFormat"
         @copyValue="copyValue"
       ></ascii-table>
-      {{tableFormat}}
     </v-container>
     <v-snackbar
       v-model="snackbar"
@@ -67,7 +66,6 @@ export default {
       return this.tableData[0];
     },
     getTableData() {
-      console.log("this.tableData[1]", this.tableData[1]);
       return this.tableData[1]
     }
   },
@@ -116,7 +114,7 @@ export default {
       return [headerData, cellData]
     },
     getTable(value) {
-      instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value)));
+      instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value, false)));
     },
     copyValue(value) {
       navigator.clipboard.writeText(value).then(() => this.snackbar = true);
