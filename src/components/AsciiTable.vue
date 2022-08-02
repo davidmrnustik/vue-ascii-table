@@ -9,11 +9,9 @@
     hide-default-footer
     hide-default-header
     :dense="tableDense"
+    class="ascii-table"
   >
     <template v-slot:top>
-      <p class="text-h4">ASCII table</p>
-      <v-row>
-      </v-row>
       <v-row style="height: 150px;">
         <v-col>
           <v-text-field
@@ -21,6 +19,13 @@
             label="Search"
             class="mx-4"
           ></v-text-field>
+        </v-col>
+        <v-col>
+          <v-switch
+            v-model="extended"
+            @change="$emit('onChangeTableExtended', extended)"
+            label="HTML Entities"
+          ></v-switch>
         </v-col>
         <v-col>
           <v-slider
@@ -43,13 +48,6 @@
           <v-switch
             v-model="$vuetify.theme.dark"
             label="Theme Dark"
-          ></v-switch>
-        </v-col>
-        <v-col>
-          <v-switch
-            v-model="extended"
-            @change="$emit('onChangeTableExtended', extended)"
-            label="HTML Entities"
           ></v-switch>
         </v-col>
       </v-row>
@@ -145,5 +143,8 @@ export default {
 </script>
 
 <style scoped>
-
+  .v-data-table.ascii-table th,
+  .v-data-table.ascii-table td {
+    font-size: var(--font-size);
+  }
 </style>

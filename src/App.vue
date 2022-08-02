@@ -1,6 +1,14 @@
 <template>
-  <v-app>
+  <v-app :style="{ fontSize: fontSize + 'px' }">
     <v-container :fluid="true">
+      <p class="text-h4">ASCII table</p>
+      <v-btn small @click="decreaseFontSize">
+        A-
+      </v-btn>
+      <v-btn small @click="increaseFontSize">
+        A+
+      </v-btn>
+
       <ascii-table
         :table-items="getTableData"
         :table-headers="getHeaders"
@@ -57,7 +65,8 @@ export default {
       snackbar: false,
       timeoutSnackBar: 1000,
       snackbarText: "Value has been copied to clipboard.",
-      extended: false
+      extended: false,
+      fontSize: 14
     }
   },
   components: {
@@ -124,7 +133,13 @@ export default {
     },
     copyValue(value) {
       navigator.clipboard.writeText(value).then(() => this.snackbar = true);
-    }
+    },
+    increaseFontSize() {
+      this.fontSize += 2;
+    },
+    decreaseFontSize() {
+      this.fontSize <= 6 ? this.fontSize = 6 : this.fontSize -= 2;
+    },
   },
   mounted() {
     this.getTable(this.tableFormat);
