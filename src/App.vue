@@ -2,44 +2,36 @@
   <v-app :style="{ fontSize: fontSize + 'px' }">
     <v-container :fluid="true">
       <p class="text-h4">ASCII table</p>
-      <v-btn small @click="decreaseFontSize">
-        A-
-      </v-btn>
-      <v-btn small @click="increaseFontSize">
-        A+
-      </v-btn>
 
-      <ascii-table
-        :table-items="getTableData"
-        :table-headers="getHeaders"
+      <Header
         @onChangeTableFormat="onChangeTableFormat"
         @onChangeTableExtended="onChangeTableExtended"
-        @copyValue="copyValue"
-      ></ascii-table>
-    </v-container>
-    <v-snackbar
-      v-model="snackbar"
-      :timeout="timeoutSnackBar"
-    >
-      {{ snackbarText }}
+        @onChangeSearch="onChangeSearch"
+        @onChangeTableDense="onChangeTableDense"
+        @onClickDecreaseFontSize="decreaseFontSize"
+        @onClickIncreaseFontSize="increaseFontSize"
+      ></Header>
 
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          color="blue"
-          text
-          v-bind="attrs"
-          @click="snackbar = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+      <TableData
+        :table-items="getTableData"
+        :table-headers="getHeaders"
+        :extended="extended"
+        :table-format="tableFormat"
+        :search="search"
+        :table-dense="tableDense"
+        @copyValue="copyValue"
+      ></TableData>
+    </v-container>
+
+    <SnackBar :copy-text="copyText"></SnackBar>
   </v-app>
 </template>
 
 <script>
 import module from './assets/js/a.out.js';
-import AsciiTable from "@/components/AsciiTable";
+import TableData from "@/components/TableData";
+import Header from "@/components/Header";
+import SnackBar from "@/components/SnackBar";
 
 let instance = {
   ready: new Promise(resolve => {
@@ -59,18 +51,20 @@ export default {
 
   data() {
     return {
+      search: "",
       tableFormat: 4,
       title: "Ascii table",
       tableData: [],
-      snackbar: false,
-      timeoutSnackBar: 1000,
-      snackbarText: "Value has been copied to clipboard.",
       extended: false,
-      fontSize: 14
+      fontSize: 14,
+      tableDense: false,
+      copyText: ""
     }
   },
   components: {
-    AsciiTable
+    TableData,
+    Header,
+    SnackBar
   },
   computed: {
     getHeaders() {
@@ -85,9 +79,15 @@ export default {
       this.tableFormat = e;
       this.getTable(e, this.extended);
     },
-    onChangeTableExtended(e) {
-      this.extended = e;
-      this.getTable(this.tableFormat, e);
+    onChangeTableExtended() {
+      this.extended = !this.extended;
+      this.getTable(this.tableFormat, this.extended);
+    },
+    onChangeSearch(e) {
+      this.search = e;
+    },
+    onChangeTableDense() {
+      this.tableDense = !this.tableDense;
     },
     prepareData(data) {
       // [["Dec", "Oct", "Bin"], [0, "x80", "00000000"]]
@@ -132,7 +132,7 @@ export default {
       instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value, ext)));
     },
     copyValue(value) {
-      navigator.clipboard.writeText(value).then(() => this.snackbar = true);
+      this.copyText = value;
     },
     increaseFontSize() {
       this.fontSize += 2;
