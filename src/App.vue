@@ -1,6 +1,6 @@
 <template>
   <v-app :style="{ fontSize: fontSize + 'px' }">
-    <v-container :fluid="true">
+    <v-container :fluid="containerFluid">
       <p class="text-h4">ASCII table</p>
 
       <Header
@@ -10,6 +10,7 @@
         @onChangeTableDense="onChangeTableDense"
         @onClickDecreaseFontSize="decreaseFontSize"
         @onClickIncreaseFontSize="increaseFontSize"
+        @onChangeSmallTable="onChangeSmallTable"
       ></Header>
 
       <TableData
@@ -56,9 +57,12 @@ export default {
       title: "Ascii table",
       tableData: [],
       extended: false,
-      fontSize: 14,
+      fontSize: "14px",
       tableDense: false,
-      copyText: ""
+      copyText: "",
+      containerFluid: true,
+      smallTable: false,
+      descriptionSize: "14px"
     }
   },
   components: {
@@ -89,10 +93,17 @@ export default {
     onChangeTableDense() {
       this.tableDense = !this.tableDense;
     },
+    onChangeSmallTable() {
+      this.containerFluid = !this.containerFluid;
+      this.smallTable = !this.smallTable;
+
+      if (this.smallTable) {
+        this.descriptionSize = `${parseInt(this.descriptionSize) - 3}px`;
+      } else {
+        this.descriptionSize = "14px";
+      }
+    },
     prepareData(data) {
-      // [["Dec", "Oct", "Bin"], [0, "x80", "00000000"]]
-      // [{ text: "Dec", value: "dec1" }, { text: "Oct", value: "oct1" }, { text: "Bin", value: "bin1" }]
-      // [{ dec1: 0 }, { oct1: "x80" }, { bin1: "00000000" }]
       /*
       [
         [{ text: "Dec", value: "dec1" }, { text: "Oct", value: "oct1" }, { text: "Bin", value: "bin1" }],
@@ -135,10 +146,11 @@ export default {
       this.copyText = value;
     },
     increaseFontSize() {
-      this.fontSize += 2;
+      this.fontSize = `${parseInt(this.fontSize) + 2}px`;
     },
     decreaseFontSize() {
-      this.fontSize <= 6 ? this.fontSize = 6 : this.fontSize -= 2;
+      const fontSize = parseInt(this.fontSize);
+      fontSize <= 10 ? this.fontSize = "10px" : this.fontSize = `${fontSize - 2}px`;
     },
   },
   mounted() {
@@ -174,7 +186,11 @@ export default {
   thead th.line:last-child, tbody td.value.line:last-child {
     border-right: none !important;
   }
-  .theme--dark .v-slider__thumb-label.white {
-    /*color: black !important;*/
+  .v-data-table.ascii-table th,
+  .v-data-table.ascii-table td {
+    font-size: v-bind(fontSize) !important;
+  }
+  .v-data-table.ascii-table td span.description {
+    font-size: v-bind(descriptionSize);
   }
 </style>

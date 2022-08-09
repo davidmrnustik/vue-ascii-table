@@ -48,7 +48,7 @@ export default {
           "%value%",
           "%value%",
           "<mark>%value%</mark>",
-          "<em>%value%</em>"
+          "<span class='description'><em>%value%</em></span>"
         ];
 
       return Array.from({ length: this.tableFormat * this.getNumberOfColumns - 1 }, () => [...styles]).flat();
@@ -68,9 +68,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-  .v-data-table.ascii-table td {
-    font-size: var(--font-size);
-  }
-</style>

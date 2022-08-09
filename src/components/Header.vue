@@ -7,6 +7,12 @@
       A+
     </v-btn>
     <v-col>
+      <v-switch
+        label="Small table"
+        @change="$emit('onChangeSmallTable')"
+      ></v-switch>
+    </v-col>
+    <v-col>
       <v-text-field
         v-model="search"
         label="Search"
@@ -16,7 +22,6 @@
     </v-col>
     <v-col>
       <v-switch
-        :v-model="extended"
         @change="$emit('onChangeTableExtended')"
         label="HTML Entities"
       ></v-switch>
@@ -34,7 +39,6 @@
     </v-col>
     <v-col>
       <v-switch
-        :v-model="tableDense"
         label="Dense table"
         @change="$emit('onChangeTableDense')"
       ></v-switch>
@@ -51,10 +55,6 @@
 <script>
 export default {
   name: "AppHeader",
-  props: {
-    tableDense: Boolean,
-    extended: Boolean,
-  },
   data() {
     return {
       search: "",
@@ -63,7 +63,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-
-</style>

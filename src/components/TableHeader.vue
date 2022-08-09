@@ -26,9 +26,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-  .v-data-table.ascii-table th {
-    font-size: var(--font-size);
-  }
-</style>
