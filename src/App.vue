@@ -4,6 +4,7 @@
       <p class="text-h4">ASCII table</p>
 
       <Header
+        :table-dense="tableDense"
         @onChangeTableFormat="onChangeTableFormat"
         @onChangeTableExtended="onChangeTableExtended"
         @onChangeSearch="onChangeSearch"
@@ -99,8 +100,10 @@ export default {
 
       if (this.smallTable) {
         this.descriptionSize = `${parseInt(this.descriptionSize) - 3}px`;
+        this.tableDense = true;
       } else {
         this.descriptionSize = "14px";
+        this.tableDense = false;
       }
     },
     prepareData(data) {

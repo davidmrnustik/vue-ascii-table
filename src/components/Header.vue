@@ -39,6 +39,7 @@
     </v-col>
     <v-col>
       <v-switch
+        :value="tableDense"
         label="Dense table"
         @change="$emit('onChangeTableDense')"
       ></v-switch>
@@ -55,6 +56,9 @@
 <script>
 export default {
   name: "AppHeader",
+  props: {
+    tableDense: Boolean
+  },
   data() {
     return {
       search: "",
