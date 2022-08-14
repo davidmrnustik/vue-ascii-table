@@ -9,7 +9,7 @@
     hide-default-footer
     hide-default-header
     :dense="tableDense"
-    class="ascii-table"
+    class="ascii-table mt-10"
   >
     <template v-slot:header="{ props: { headers } }">
       <TableHeader

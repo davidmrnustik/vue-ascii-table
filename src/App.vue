@@ -1,19 +1,18 @@
 <template>
   <v-app :style="{ fontSize: fontSize + 'px' }">
+    <Header
+      :table-dense="tableDense"
+      :title="title"
+      @onChangeTableFormat="onChangeTableFormat"
+      @onChangeTableExtended="onChangeTableExtended"
+      @onChangeSearch="onChangeSearch"
+      @onChangeTableDense="onChangeTableDense"
+      @onClickDecreaseFontSize="decreaseFontSize"
+      @onClickIncreaseFontSize="increaseFontSize"
+      @onChangeSmallTable="onChangeSmallTable"
+    ></Header>
+
     <v-container :fluid="containerFluid">
-      <p class="text-h4">ASCII table</p>
-
-      <Header
-        :table-dense="tableDense"
-        @onChangeTableFormat="onChangeTableFormat"
-        @onChangeTableExtended="onChangeTableExtended"
-        @onChangeSearch="onChangeSearch"
-        @onChangeTableDense="onChangeTableDense"
-        @onClickDecreaseFontSize="decreaseFontSize"
-        @onClickIncreaseFontSize="increaseFontSize"
-        @onChangeSmallTable="onChangeSmallTable"
-      ></Header>
-
       <TableData
         :table-items="getTableData"
         :table-headers="getHeaders"
@@ -55,7 +54,7 @@ export default {
     return {
       search: "",
       tableFormat: 4,
-      title: "Ascii table",
+      title: "ASCII table",
       tableData: [],
       extended: false,
       fontSize: "14px",
