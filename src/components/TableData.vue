@@ -9,6 +9,7 @@
     hide-default-footer
     hide-default-header
     :dense="tableDense"
+    :custom-filter="filterOnlyChar"
     class="ascii-table mt-10"
   >
     <template v-slot:header="{ props: { headers } }">
@@ -52,6 +53,11 @@ export default {
   methods: {
     copyValue(value) {
       this.$emit('copyValue', value);
+    },
+    filterOnlyChar(value, search, item) {
+      const charKeys = Object.keys(item).filter(i => i.startsWith("char"));
+
+      return charKeys.some(i => item[i] === value && value === search)
     }
   }
 };
