@@ -8,7 +8,7 @@
     :search="search"
     hide-default-footer
     hide-default-header
-    :dense="tableDense"
+    dense
     :custom-filter="filterOnlyChar"
     class="ascii-table mt-10"
   >
@@ -46,7 +46,6 @@ export default {
     tableItems: Array,
     tableHeaders: Array,
     search: String,
-    tableDense: Boolean,
     tableFormat: Number,
     extended: Boolean
   },

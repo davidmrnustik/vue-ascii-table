@@ -1,12 +1,10 @@
 <template>
   <v-app :style="{ fontSize: fontSize + 'px' }">
     <Header
-      :table-dense="tableDense"
       :title="title"
       @onChangeTableFormat="onChangeTableFormat"
       @onChangeTableExtended="onChangeTableExtended"
       @onChangeSearch="onChangeSearch"
-      @onChangeTableDense="onChangeTableDense"
       @onClickDecreaseFontSize="decreaseFontSize"
       @onClickIncreaseFontSize="increaseFontSize"
       @onChangeSmallTable="onChangeSmallTable"
@@ -19,7 +17,6 @@
         :extended="extended"
         :table-format="tableFormat"
         :search="search"
-        :table-dense="tableDense"
         @copyValue="copyValue"
       ></TableData>
     </v-container>
@@ -58,7 +55,6 @@ export default {
       tableData: [],
       extended: false,
       fontSize: "14px",
-      tableDense: false,
       copyText: "",
       containerFluid: true,
       smallTable: false,
@@ -90,19 +86,16 @@ export default {
     onChangeSearch(e) {
       this.search = e;
     },
-    onChangeTableDense() {
-      this.tableDense = !this.tableDense;
-    },
     onChangeSmallTable() {
       this.containerFluid = !this.containerFluid;
       this.smallTable = !this.smallTable;
 
       if (this.smallTable) {
         this.descriptionSize = `${parseInt(this.descriptionSize) - 3}px`;
-        this.tableDense = true;
+        this.decreaseFontSize();
       } else {
         this.descriptionSize = "14px";
-        this.tableDense = false;
+        this.increaseFontSize();
       }
     },
     prepareData(data) {
@@ -194,5 +187,25 @@ export default {
   }
   .v-data-table.ascii-table td span.description {
     font-size: v-bind(descriptionSize);
+  }
+  .v-data-table--mobile > .v-data-table__wrapper tbody {
+    display: table-row-group !important;
+  }
+  @media screen and (max-width: 650px) {
+    .v-input__control label,
+    .v-input__control input {
+      font-size: 14px !important;
+    }
+    .v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th {
+      padding: 0 6px;
+    }
+    .v-data-table.ascii-table td span.description {
+      font-size: 12px;
+    }
+  }
+  @media screen and (max-width: 360px) {
+    .v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th {
+      padding: 0 3px;
+    }
   }
 </style>
