@@ -1,13 +1,12 @@
 <template>
   <v-card>
     <v-app-bar dense fixed>
-      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = true" class="d-flex d-sm-none"></v-app-bar-nav-icon>
       <v-row dense>
-        <v-col cols="auto" align-self="center">
+        <v-col cols="auto" align-self="center" lg="1">
           <v-toolbar-title>{{ responsiveTitle }}</v-toolbar-title>
         </v-col>
-        <v-spacer class="d-none d-lg-flex d-xl-none"></v-spacer>
-        <v-col align-self="center" sm="6" cols="8" md="4" lg="3">
+        <v-col align-self="center" sm="6" cols="8" md="4" lg="4" xl="4">
           <v-row>
             <v-col align-self="center">
               <v-text-field
@@ -18,9 +17,13 @@
                 single-line
                 placeholder="Search Character"
                 @keyup="$emit('onChangeSearch', search)"
-              ></v-text-field>
+              >
+                <template v-slot:append>
+                  <v-icon @click="onIconCloseClick" v-show="search.length">mdi-close</v-icon>
+                </template>
+              </v-text-field>
             </v-col>
-            <v-col align-self="center">
+            <v-col align-self="center" class="d-none d-sm-flex">
               <v-switch
                 dense
                 hide-details
@@ -30,8 +33,8 @@
             </v-col>
           </v-row>
         </v-col>
-        <v-spacer class="d-none d-lg-flex d-xl-none"></v-spacer>
-        <v-col align-self="center" md="4" lg="4">
+        <v-spacer class="d-none d-lg-flex"></v-spacer>
+        <v-col align-self="center" md="4" lg="4" xl="4">
           <v-row>
             <v-col align-self="center" md="10" lg="6" class="d-none d-md-flex">
               <v-slider
@@ -59,8 +62,8 @@
             </v-col>
           </v-row>
         </v-col>
-        <v-spacer class="d-none d-lg-flex d-xl-none"></v-spacer>
-        <v-col cols="auto" align-self="center">
+        <v-spacer class="d-none d-lg-flex"></v-spacer>
+        <v-col cols="auto" align-self="center" class="d-none d-sm-flex">
           <v-row>
             <v-col align-self="center" class="d-none d-sm-flex">
               <v-btn small @click="$emit('onClickDecreaseFontSize')">
@@ -87,22 +90,36 @@
       fixed
       temporary
     >
-      <v-list
-        nav
-        dense
-      >
-        <v-list-item-group
-          v-model="group"
-          active-class="deep-purple--text text--accent-4"
-        >
-          <v-list-item>
-            <v-list-item-title>Home</v-list-item-title>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-title>Account</v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
+      <v-container>
+        <v-row no-gutters>
+          <v-col align-self="center">
+            <v-switch
+              dense
+              hide-details
+              @change="$emit('onChangeTableExtended')"
+              label="HTML Entities"
+            ></v-switch>
+          </v-col>
+        </v-row>
+        <v-row no-gutters>
+          <v-col align-self="center">
+            <v-btn small @click="$emit('onClickDecreaseFontSize')">
+              A-
+            </v-btn>
+            <v-btn small @click="$emit('onClickIncreaseFontSize')">
+              A+
+            </v-btn>
+          </v-col>
+          <v-col align-self="center" class="ml-5">
+            <v-switch
+              dense
+              v-model="$vuetify.theme.dark"
+              label="Dark"
+            ></v-switch>
+          </v-col>
+        </v-row>
+
+      </v-container>
     </v-navigation-drawer>
   </v-card>
 </template>
@@ -119,8 +136,7 @@ export default {
       search: "",
       width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
-      drawer: false,
-      group: null
+      drawer: false
     }
   },
   computed: {
@@ -166,6 +182,10 @@ export default {
         this.$emit('onChangeTableFormat', 4)
         this.tableFormat = 4
       }
+    },
+    onIconCloseClick() {
+      this.search = ""
+      this.$emit('onChangeSearch', this.search)
     },
     getDimensions() {
       this.width = document.documentElement.clientWidth;
