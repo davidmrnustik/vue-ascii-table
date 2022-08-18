@@ -1,24 +1,22 @@
 <template>
   <v-app :style="{ fontSize: fontSize + 'px' }">
-    <v-container :fluid="true">
-      <p class="text-h4">ASCII table</p>
+    <Header
+      :title="title"
+      @onChangeTableFormat="onChangeTableFormat"
+      @onChangeTableExtended="onChangeTableExtended"
+      @onChangeSearch="onChangeSearch"
+      @onClickDecreaseFontSize="decreaseFontSize"
+      @onClickIncreaseFontSize="increaseFontSize"
+      @onChangeSmallTable="onChangeSmallTable"
+    ></Header>
 
-      <Header
-        @onChangeTableFormat="onChangeTableFormat"
-        @onChangeTableExtended="onChangeTableExtended"
-        @onChangeSearch="onChangeSearch"
-        @onChangeTableDense="onChangeTableDense"
-        @onClickDecreaseFontSize="decreaseFontSize"
-        @onClickIncreaseFontSize="increaseFontSize"
-      ></Header>
-
+    <v-container :fluid="containerFluid">
       <TableData
         :table-items="getTableData"
         :table-headers="getHeaders"
         :extended="extended"
         :table-format="tableFormat"
         :search="search"
-        :table-dense="tableDense"
         @copyValue="copyValue"
       ></TableData>
     </v-container>
@@ -53,12 +51,14 @@ export default {
     return {
       search: "",
       tableFormat: 4,
-      title: "Ascii table",
+      title: "ASCII table",
       tableData: [],
       extended: false,
-      fontSize: 14,
-      tableDense: false,
-      copyText: ""
+      fontSize: "14px",
+      copyText: "",
+      containerFluid: true,
+      smallTable: false,
+      descriptionSize: "14px"
     }
   },
   components: {
@@ -86,13 +86,19 @@ export default {
     onChangeSearch(e) {
       this.search = e;
     },
-    onChangeTableDense() {
-      this.tableDense = !this.tableDense;
+    onChangeSmallTable() {
+      this.containerFluid = !this.containerFluid;
+      this.smallTable = !this.smallTable;
+
+      if (this.smallTable) {
+        this.descriptionSize = `${parseInt(this.descriptionSize) - 3}px`;
+        this.decreaseFontSize();
+      } else {
+        this.descriptionSize = "14px";
+        this.increaseFontSize();
+      }
     },
     prepareData(data) {
-      // [["Dec", "Oct", "Bin"], [0, "x80", "00000000"]]
-      // [{ text: "Dec", value: "dec1" }, { text: "Oct", value: "oct1" }, { text: "Bin", value: "bin1" }]
-      // [{ dec1: 0 }, { oct1: "x80" }, { bin1: "00000000" }]
       /*
       [
         [{ text: "Dec", value: "dec1" }, { text: "Oct", value: "oct1" }, { text: "Bin", value: "bin1" }],
@@ -135,10 +141,11 @@ export default {
       this.copyText = value;
     },
     increaseFontSize() {
-      this.fontSize += 2;
+      this.fontSize = `${parseInt(this.fontSize) + 2}px`;
     },
     decreaseFontSize() {
-      this.fontSize <= 6 ? this.fontSize = 6 : this.fontSize -= 2;
+      const fontSize = parseInt(this.fontSize);
+      fontSize <= 10 ? this.fontSize = "10px" : this.fontSize = `${fontSize - 2}px`;
     },
   },
   mounted() {
@@ -174,7 +181,31 @@ export default {
   thead th.line:last-child, tbody td.value.line:last-child {
     border-right: none !important;
   }
-  .theme--dark .v-slider__thumb-label.white {
-    /*color: black !important;*/
+  .v-data-table.ascii-table th,
+  .v-data-table.ascii-table td {
+    font-size: v-bind(fontSize) !important;
+  }
+  .v-data-table.ascii-table td span.description {
+    font-size: v-bind(descriptionSize);
+  }
+  .v-data-table--mobile > .v-data-table__wrapper tbody {
+    display: table-row-group !important;
+  }
+  @media screen and (max-width: 650px) {
+    .v-input__control label,
+    .v-input__control input {
+      font-size: 14px !important;
+    }
+    .v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th {
+      padding: 0 6px;
+    }
+    .v-data-table.ascii-table td span.description {
+      font-size: 12px;
+    }
+  }
+  @media screen and (max-width: 360px) {
+    .v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th {
+      padding: 0 3px;
+    }
   }
 </style>
