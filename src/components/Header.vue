@@ -9,19 +9,7 @@
         <v-col align-self="center" sm="6" cols="8" md="4" lg="4" xl="4">
           <v-row>
             <v-col align-self="center">
-              <v-text-field
-                v-model="search"
-                prepend-icon="mdi-magnify"
-                dense
-                hide-details
-                single-line
-                placeholder="Search Character"
-                @keyup="$emit('onChangeSearch', search)"
-              >
-                <template v-slot:append>
-                  <v-icon @click="onIconCloseClick" v-show="search.length">mdi-close</v-icon>
-                </template>
-              </v-text-field>
+              <search @onChangeSearch="onChangeSearch"></search>
             </v-col>
             <v-col align-self="center" class="d-none d-sm-flex">
               <v-switch
@@ -65,21 +53,13 @@
         <v-spacer class="d-none d-lg-flex"></v-spacer>
         <v-col cols="auto" align-self="center" class="d-none d-sm-flex">
           <v-row>
-            <v-col align-self="center" class="d-none d-sm-flex">
-              <v-btn small @click="$emit('onClickDecreaseFontSize')">
-                A-
-              </v-btn>
-              <v-btn small @click="$emit('onClickIncreaseFontSize')">
-                A+
-              </v-btn>
-            </v-col>
+            <change-font
+              css-rules="d-none d-sm-flex"
+              @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
+              @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
+            ></change-font>
             <v-col align-self="center">
-              <v-switch
-                dense
-                hide-details
-                v-model="$vuetify.theme.dark"
-                label="Dark"
-              ></v-switch>
+              <change-theme :hide-details="true"></change-theme>
             </v-col>
           </v-row>
         </v-col>
@@ -102,20 +82,12 @@
           </v-col>
         </v-row>
         <v-row no-gutters>
-          <v-col align-self="center">
-            <v-btn small @click="$emit('onClickDecreaseFontSize')">
-              A-
-            </v-btn>
-            <v-btn small @click="$emit('onClickIncreaseFontSize')">
-              A+
-            </v-btn>
-          </v-col>
+          <change-font
+            @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
+            @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
+          ></change-font>
           <v-col align-self="center" class="ml-5">
-            <v-switch
-              dense
-              v-model="$vuetify.theme.dark"
-              label="Dark"
-            ></v-switch>
+            <change-theme></change-theme>
           </v-col>
         </v-row>
 
@@ -125,15 +97,23 @@
 </template>
 
 <script>
+import Search from "@/components/Search";
+import ChangeFont from "@/components/ChangeFont";
+import ChangeTheme from "@/components/ChangeTheme";
+
 export default {
   name: "AppHeader",
+  components: {
+    Search,
+    ChangeFont,
+    ChangeTheme
+  },
   props: {
     title: String,
   },
   data() {
     return {
       tableFormat: 4,
-      search: "",
       width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
       drawer: false
@@ -183,13 +163,12 @@ export default {
         this.tableFormat = 4
       }
     },
-    onIconCloseClick() {
-      this.search = ""
-      this.$emit('onChangeSearch', this.search)
-    },
     getDimensions() {
       this.width = document.documentElement.clientWidth;
       this.height = document.documentElement.clientHeight;
+    },
+    onChangeSearch(e) {
+      this.$emit("onChangeSearch", e)
     }
   }
 };
