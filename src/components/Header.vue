@@ -1,7 +1,11 @@
 <template>
   <v-card>
     <v-app-bar dense fixed>
-      <v-app-bar-nav-icon @click="drawer = true" class="d-flex d-sm-none"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon class="d-flex d-sm-none">
+        <template v-slot:default>
+          <v-icon size="28" @click="drawer = true">{{ drawerIcon }}</v-icon>
+        </template>
+      </v-app-bar-nav-icon>
       <v-row dense>
         <v-col cols="auto" align-self="center" lg="1">
           <v-toolbar-title>{{ responsiveTitle }}</v-toolbar-title>
@@ -12,12 +16,11 @@
               <search @onChangeSearch="onChangeSearch"></search>
             </v-col>
             <v-col align-self="center" class="d-none d-sm-flex">
-              <v-switch
-                dense
-                hide-details
-                @change="$emit('onChangeTableExtended')"
+              <html-entities
                 :label="responsiveHTMLEntitiesTitle"
-              ></v-switch>
+                :extended="extended"
+                @onClickTableExtended="$emit('onChangeTableExtended', extended)"
+              ></html-entities>
             </v-col>
           </v-row>
         </v-col>
@@ -33,7 +36,7 @@
                 min="1"
                 max="6"
                 @change="$emit('onChangeTableFormat', tableFormat)"
-                :label="tableFormat.toString()"
+                :label="`Columns: ${tableFormat.toString()}`"
               ></v-slider>
             </v-col>
             <v-col align-self="center">
@@ -65,48 +68,31 @@
         </v-col>
       </v-row>
     </v-app-bar>
-    <v-navigation-drawer
+    <navigation-drawer
       v-model="drawer"
-      fixed
-      temporary
-    >
-      <v-container>
-        <v-row no-gutters>
-          <v-col align-self="center">
-            <v-switch
-              dense
-              hide-details
-              @change="$emit('onChangeTableExtended')"
-              label="HTML Entities"
-            ></v-switch>
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <change-font
-            @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
-            @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
-          ></change-font>
-          <v-col align-self="center" class="ml-5">
-            <change-theme></change-theme>
-          </v-col>
-        </v-row>
-
-      </v-container>
-    </v-navigation-drawer>
+      @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
+      @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
+      @onClickTableExtended="$emit('onChangeTableExtended')"
+    ></navigation-drawer>
   </v-card>
 </template>
 
 <script>
+import { mdiMenu } from "@mdi/js"
 import Search from "@/components/Search";
 import ChangeFont from "@/components/ChangeFont";
 import ChangeTheme from "@/components/ChangeTheme";
+import NavigationDrawer from "@/components/NavigationDrawer";
+import HtmlEntities from "@/components/HtmlEntities";
 
 export default {
   name: "AppHeader",
   components: {
     Search,
     ChangeFont,
-    ChangeTheme
+    ChangeTheme,
+    NavigationDrawer,
+    HtmlEntities
   },
   props: {
     title: String,
@@ -114,14 +100,16 @@ export default {
   data() {
     return {
       tableFormat: 4,
+      extended: false,
       width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
-      drawer: false
+      drawer: false,
+      drawerIcon: mdiMenu
     }
   },
   computed: {
     responsiveTitle() {
-      if (this.width > 975) {
+      if (this.width > 985) {
         return this.title
       } else {
         return this.title.split(" ")[0]
@@ -178,14 +166,5 @@ export default {
   h1 {
     font-weight: normal;
     font-size: 20px;
-  }
-  .no-grow {
-    flex-grow: 0;
-  }
-  .no-max-width {
-    width: auto;
-  }
-  .no-wrap {
-    white-space: nowrap;
   }
 </style>
