@@ -46,7 +46,7 @@
                     dense
                     hide-details
                     label="Small table"
-                    @change="$emit('onChangeSmallTable')"
+                    @change="setSmallTable"
                   ></v-switch>
                 </v-col>
               </v-row>
@@ -58,8 +58,8 @@
           <v-row>
             <change-font
               css-rules="d-none d-sm-flex"
-              @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
-              @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
+              @onClickDecreaseFontSize="decreaseFontSize"
+              @onClickIncreaseFontSize="increaseFontSize"
             ></change-font>
             <v-col align-self="center">
               <change-theme :hide-details="true"></change-theme>
@@ -70,8 +70,8 @@
     </v-app-bar>
     <navigation-drawer
       v-model="drawer"
-      @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
-      @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
+      @onClickDecreaseFontSize="decreaseFontSize"
+      @onClickIncreaseFontSize="increaseFontSize"
       @onClickTableExtended="$emit('onChangeTableExtended')"
     ></navigation-drawer>
   </v-card>
@@ -84,6 +84,8 @@ import ChangeFont from "@/components/ChangeFont";
 import ChangeTheme from "@/components/ChangeTheme";
 import NavigationDrawer from "@/components/NavigationDrawer";
 import HtmlEntities from "@/components/HtmlEntities";
+import { mapState, mapWritableState } from "pinia";
+import { useAsciiTableStore } from "@/stores/AsciiTableStore";
 
 export default {
   name: "AppHeader",
@@ -99,12 +101,12 @@ export default {
   },
   data() {
     return {
-      tableFormat: 4,
       extended: false,
       width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
       drawer: false,
-      drawerIcon: mdiMenu
+      drawerIcon: mdiMenu,
+      tableFormat: 4
     }
   },
   computed: {
@@ -122,6 +124,8 @@ export default {
         return "HTML Entities"
       }
     },
+    ...mapState(useAsciiTableStore, ['tableColumns']),
+    ...mapWritableState(useAsciiTableStore, ['setTableColumns', 'setSearch', 'increaseFontSize', 'decreaseFontSize', 'setSmallTable'])
   },
   watch: {
     width() {
@@ -139,24 +143,28 @@ export default {
     setTableFormat() {
       if (this.width < 650) {
         this.$emit('onChangeTableFormat', 1)
+        this.setTableColumns(1)
         this.tableFormat = 1
       } else if (this.width < 1000) {
         this.$emit('onChangeTableFormat', 2)
+        this.setTableColumns(2)
         this.tableFormat = 2
       } else if (this.width < 1350) {
         this.$emit('onChangeTableFormat', 3)
+        this.setTableColumns(3)
         this.tableFormat = 3
       } else {
         this.$emit('onChangeTableFormat', 4)
+        this.setTableColumns(4)
         this.tableFormat = 4
       }
     },
     getDimensions() {
-      this.width = document.documentElement.clientWidth;
-      this.height = document.documentElement.clientHeight;
+      this.width = document.documentElement.clientWidth
+      this.height = document.documentElement.clientHeight
     },
     onChangeSearch(e) {
-      this.$emit("onChangeSearch", e)
+      this.setSearch(e)
     }
   }
 };
