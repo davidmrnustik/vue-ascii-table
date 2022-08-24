@@ -1,22 +1,13 @@
 <template>
   <v-app :style="{ fontSize: fontSize + 'px' }">
-    <Header
-      :title="title"
-      @onChangeTableFormat="onChangeTableFormat"
-      @onChangeTableExtended="onChangeTableExtended"
-      @onChangeSearch="onChangeSearch"
-      @onClickDecreaseFontSize="decreaseFontSize"
-      @onClickIncreaseFontSize="increaseFontSize"
-      @onChangeSmallTable="onChangeSmallTable"
-    ></Header>
+    <Header :title="title"></Header>
 
-    <v-container :fluid="containerFluid">
+    <v-container :fluid="!smallTable">
       <TableData
         :table-items="getTableData"
         :table-headers="getHeaders"
-        :extended="extended"
-        :table-format="tableFormat"
-        :search="search"
+        :extended="extendedTable"
+        :table-format="tableColumns"
         @copyValue="copyValue"
       ></TableData>
     </v-container>
@@ -26,39 +17,19 @@
 </template>
 
 <script>
-import module from './assets/js/a.out.js';
+import { mapState, mapWritableState } from 'pinia'
 import TableData from "@/components/TableData";
 import Header from "@/components/Header";
 import SnackBar from "@/components/SnackBar";
-
-let instance = {
-  ready: new Promise(resolve => {
-    module({
-      onRuntimeInitialized() {
-        instance = Object.assign(this, {
-          ready: Promise.resolve()
-        });
-        resolve();
-      }
-    });
-  })
-};
+import { useAsciiTableStore } from "@/stores/AsciiTableStore";
 
 export default {
   name: 'App',
 
   data() {
     return {
-      search: "",
-      tableFormat: 4,
       title: "ASCII table",
-      tableData: [],
-      extended: false,
-      fontSize: "14px",
-      copyText: "",
-      containerFluid: true,
-      smallTable: false,
-      descriptionSize: "14px"
+      copyText: ""
     }
   },
   components: {
@@ -67,91 +38,26 @@ export default {
     SnackBar
   },
   computed: {
-    getHeaders() {
-      return this.tableData[0];
-    },
-    getTableData() {
-      return this.tableData[1]
-    }
+    ...mapState(useAsciiTableStore, [
+      'tableColumns',
+      'getTableData',
+      'getHeaders',
+      'extendedTable',
+      'smallTable',
+      'fontSize',
+      'descriptionSize'
+    ]),
+    ...mapWritableState(useAsciiTableStore, ['getTable', 'setTableColumns'])
   },
   methods: {
-    onChangeTableFormat(e) {
-      this.tableFormat = e;
-      this.getTable(e, this.extended);
-    },
-    onChangeTableExtended() {
-      this.extended = !this.extended;
-      this.getTable(this.tableFormat, this.extended);
-    },
-    onChangeSearch(e) {
-      this.search = e;
-    },
-    onChangeSmallTable() {
-      this.containerFluid = !this.containerFluid;
-      this.smallTable = !this.smallTable;
-
-      if (this.smallTable) {
-        this.descriptionSize = `${parseInt(this.descriptionSize) - 3}px`;
-        this.decreaseFontSize();
-      } else {
-        this.descriptionSize = "14px";
-        this.increaseFontSize();
-      }
-    },
-    prepareData(data) {
-      /*
-      [
-        [{ text: "Dec", value: "dec1" }, { text: "Oct", value: "oct1" }, { text: "Bin", value: "bin1" }],
-        [{ dec1: 0, oct1: "x80", bin1: "00000000" }, { dec1: 1, oct1: "x81", bin1: "00000001" }, ]
-      ]
-       */
-      const parsed = JSON.parse(data);
-      console.log("parsed:", parsed);
-      let headerData = []
-      const cellData = []
-
-      parsed.forEach((row, rIdx) => {
-        if (rIdx === 0) {
-          headerData = row.map((col, cIdx) => {
-            return {
-              text: col,
-              sortable: false,
-              value: `${col.toLowerCase()}${cIdx}`
-            }
-          })
-        } else {
-          const res = row.reduce((acc, cur, index) => {
-            return {
-              ...acc,
-              [`${(parsed[0][index]).toLowerCase().replace(/\s/, "")}${index}`]: cur
-            }
-          }, {})
-          cellData.push(res)
-        }
-      })
-
-      console.log("cellData", cellData);
-
-      return [headerData, cellData]
-    },
-    getTable(value, ext) {
-      instance.ready.then(() => this.tableData = this.prepareData(instance.getTable(value, ext)));
-    },
     copyValue(value) {
-      this.copyText = value;
-    },
-    increaseFontSize() {
-      this.fontSize = `${parseInt(this.fontSize) + 2}px`;
-    },
-    decreaseFontSize() {
-      const fontSize = parseInt(this.fontSize);
-      fontSize <= 10 ? this.fontSize = "10px" : this.fontSize = `${fontSize - 2}px`;
-    },
+      this.copyText = value
+    }
   },
   mounted() {
-    this.getTable(this.tableFormat);
+    this.getTable(this.tableColumns)
   }
-};
+}
 </script>
 
 <style >

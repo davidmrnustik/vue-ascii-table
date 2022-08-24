@@ -1,7 +1,11 @@
 <template>
   <v-card>
     <v-app-bar dense fixed>
-      <v-app-bar-nav-icon @click="drawer = true" class="d-flex d-sm-none"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon class="d-flex d-sm-none">
+        <template v-slot:default>
+          <v-icon size="28" @click="drawer = true">{{ drawerIcon }}</v-icon>
+        </template>
+      </v-app-bar-nav-icon>
       <v-row dense>
         <v-col cols="auto" align-self="center" lg="1">
           <v-toolbar-title>{{ responsiveTitle }}</v-toolbar-title>
@@ -12,12 +16,11 @@
               <search @onChangeSearch="onChangeSearch"></search>
             </v-col>
             <v-col align-self="center" class="d-none d-sm-flex">
-              <v-switch
-                dense
-                hide-details
-                @change="$emit('onChangeTableExtended')"
+              <html-entities
                 :label="responsiveHTMLEntitiesTitle"
-              ></v-switch>
+                :extended="extendedTable"
+                @onClickTableExtended="setExtendedTable"
+              ></html-entities>
             </v-col>
           </v-row>
         </v-col>
@@ -32,8 +35,8 @@
                 :thumb-size="24"
                 min="1"
                 max="6"
-                @change="$emit('onChangeTableFormat', tableFormat)"
-                :label="tableFormat.toString()"
+                @change="onChangeTableFormat"
+                :label="`Columns: ${tableFormat.toString()}`"
               ></v-slider>
             </v-col>
             <v-col align-self="center">
@@ -43,7 +46,7 @@
                     dense
                     hide-details
                     label="Small table"
-                    @change="$emit('onChangeSmallTable')"
+                    @change="setSmallTable"
                   ></v-switch>
                 </v-col>
               </v-row>
@@ -55,8 +58,8 @@
           <v-row>
             <change-font
               css-rules="d-none d-sm-flex"
-              @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
-              @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
+              @onClickDecreaseFontSize="decreaseFontSize"
+              @onClickIncreaseFontSize="increaseFontSize"
             ></change-font>
             <v-col align-self="center">
               <change-theme :hide-details="true"></change-theme>
@@ -65,63 +68,50 @@
         </v-col>
       </v-row>
     </v-app-bar>
-    <v-navigation-drawer
+    <navigation-drawer
       v-model="drawer"
-      fixed
-      temporary
-    >
-      <v-container>
-        <v-row no-gutters>
-          <v-col align-self="center">
-            <v-switch
-              dense
-              hide-details
-              @change="$emit('onChangeTableExtended')"
-              label="HTML Entities"
-            ></v-switch>
-          </v-col>
-        </v-row>
-        <v-row no-gutters>
-          <change-font
-            @onClickDecreaseFontSize="$emit('onClickDecreaseFontSize')"
-            @onClickIncreaseFontSize="$emit('onClickIncreaseFontSize')"
-          ></change-font>
-          <v-col align-self="center" class="ml-5">
-            <change-theme></change-theme>
-          </v-col>
-        </v-row>
-
-      </v-container>
-    </v-navigation-drawer>
+      :extended="extendedTable"
+      @onClickDecreaseFontSize="decreaseFontSize"
+      @onClickIncreaseFontSize="increaseFontSize"
+      @onClickTableExtended="setExtendedTable"
+    ></navigation-drawer>
   </v-card>
 </template>
 
 <script>
+import { mdiMenu } from "@mdi/js"
 import Search from "@/components/Search";
 import ChangeFont from "@/components/ChangeFont";
 import ChangeTheme from "@/components/ChangeTheme";
+import NavigationDrawer from "@/components/NavigationDrawer";
+import HtmlEntities from "@/components/HtmlEntities";
+import { mapState, mapWritableState } from "pinia";
+import { useAsciiTableStore } from "@/stores/AsciiTableStore";
 
 export default {
   name: "AppHeader",
   components: {
     Search,
     ChangeFont,
-    ChangeTheme
+    ChangeTheme,
+    NavigationDrawer,
+    HtmlEntities
   },
   props: {
     title: String,
   },
   data() {
     return {
-      tableFormat: 4,
       width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
-      drawer: false
+      drawer: false,
+      drawerIcon: mdiMenu,
+      tableFormat: 4
     }
   },
   computed: {
     responsiveTitle() {
-      if (this.width > 975) {
+      if (this.width > 985) {
         return this.title
       } else {
         return this.title.split(" ")[0]
@@ -134,6 +124,16 @@ export default {
         return "HTML Entities"
       }
     },
+    ...mapState(useAsciiTableStore, ['tableColumns', 'extendedTable']),
+    ...mapWritableState(useAsciiTableStore, [
+      'getTable',
+      'setTableColumns',
+      'setExtendedTable',
+      'setSearch',
+      'increaseFontSize',
+      'decreaseFontSize',
+      'setSmallTable'
+    ])
   },
   watch: {
     width() {
@@ -150,26 +150,30 @@ export default {
   methods: {
     setTableFormat() {
       if (this.width < 650) {
-        this.$emit('onChangeTableFormat', 1)
+        this.onChangeTableFormat(1)
         this.tableFormat = 1
       } else if (this.width < 1000) {
-        this.$emit('onChangeTableFormat', 2)
+        this.onChangeTableFormat(2)
         this.tableFormat = 2
       } else if (this.width < 1350) {
-        this.$emit('onChangeTableFormat', 3)
+        this.onChangeTableFormat(3)
         this.tableFormat = 3
       } else {
-        this.$emit('onChangeTableFormat', 4)
+        this.onChangeTableFormat(4)
         this.tableFormat = 4
       }
     },
     getDimensions() {
-      this.width = document.documentElement.clientWidth;
-      this.height = document.documentElement.clientHeight;
+      this.width = document.documentElement.clientWidth
+      this.height = document.documentElement.clientHeight
     },
     onChangeSearch(e) {
-      this.$emit("onChangeSearch", e)
-    }
+      this.setSearch(e)
+    },
+    onChangeTableFormat(e) {
+      this.setTableColumns(e)
+      this.getTable(e, this.extendedTable)
+    },
   }
 };
 </script>
@@ -178,14 +182,5 @@ export default {
   h1 {
     font-weight: normal;
     font-size: 20px;
-  }
-  .no-grow {
-    flex-grow: 0;
-  }
-  .no-max-width {
-    width: auto;
-  }
-  .no-wrap {
-    white-space: nowrap;
   }
 </style>

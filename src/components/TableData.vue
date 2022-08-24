@@ -35,6 +35,8 @@
 <script>
 import TableHeader from "@/components/TableHeader";
 import TableBody from "@/components/TableBody";
+import { mapState } from "pinia";
+import { useAsciiTableStore } from "@/stores/AsciiTableStore";
 
 export default {
   name: "AsciiTable",
@@ -45,7 +47,6 @@ export default {
   props: {
     tableItems: Array,
     tableHeaders: Array,
-    search: String,
     tableFormat: Number,
     extended: Boolean
   },
@@ -58,6 +59,9 @@ export default {
 
       return charKeys.some(i => item[i] === value && value === search)
     }
+  },
+  computed: {
+    ...mapState(useAsciiTableStore, ['search']),
   }
 };
 </script>
