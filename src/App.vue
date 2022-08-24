@@ -1,16 +1,12 @@
 <template>
   <v-app :style="{ fontSize: fontSize + 'px' }">
-    <Header
-      :title="title"
-      @onChangeTableFormat="onChangeTableFormat"
-      @onChangeTableExtended="onChangeTableExtended"
-    ></Header>
+    <Header :title="title"></Header>
 
     <v-container :fluid="!smallTable">
       <TableData
         :table-items="getTableData"
         :table-headers="getHeaders"
-        :extended="extended"
+        :extended="extendedTable"
         :table-format="tableColumns"
         @copyValue="copyValue"
       ></TableData>
@@ -22,24 +18,10 @@
 
 <script>
 import { mapState, mapWritableState } from 'pinia'
-import module from './assets/js/a.out.js';
 import TableData from "@/components/TableData";
 import Header from "@/components/Header";
 import SnackBar from "@/components/SnackBar";
 import { useAsciiTableStore } from "@/stores/AsciiTableStore";
-
-let instance = {
-  ready: new Promise(resolve => {
-    module({
-      onRuntimeInitialized() {
-        instance = Object.assign(this, {
-          ready: Promise.resolve()
-        });
-        resolve();
-      }
-    });
-  })
-};
 
 export default {
   name: 'App',
@@ -47,7 +29,6 @@ export default {
   data() {
     return {
       title: "ASCII table",
-      extended: false,
       copyText: ""
     }
   },
@@ -57,21 +38,18 @@ export default {
     SnackBar
   },
   computed: {
-    ...mapState(useAsciiTableStore, ['tableColumns', 'getTableData', 'getHeaders', 'smallTable', 'fontSize', 'descriptionSize']),
-    ...mapWritableState(useAsciiTableStore, ['setTableData', 'setTableColumns', 'setExtendedTable'])
+    ...mapState(useAsciiTableStore, [
+      'tableColumns',
+      'getTableData',
+      'getHeaders',
+      'extendedTable',
+      'smallTable',
+      'fontSize',
+      'descriptionSize'
+    ]),
+    ...mapWritableState(useAsciiTableStore, ['getTable', 'setTableColumns'])
   },
   methods: {
-    onChangeTableFormat(e) {
-      this.setTableColumns(e)
-      this.getTable(e, this.extended)
-    },
-    onChangeTableExtended() {
-      this.extended = !this.extended
-      this.getTable(this.tableColumns, this.extended)
-    },
-    getTable(value, ext) {
-      instance.ready.then(() => this.setTableData(instance.getTable(value, ext)))
-    },
     copyValue(value) {
       this.copyText = value
     }

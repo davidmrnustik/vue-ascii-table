@@ -18,8 +18,8 @@
             <v-col align-self="center" class="d-none d-sm-flex">
               <html-entities
                 :label="responsiveHTMLEntitiesTitle"
-                :extended="extended"
-                @onClickTableExtended="$emit('onChangeTableExtended', extended)"
+                :extended="extendedTable"
+                @onClickTableExtended="setExtendedTable"
               ></html-entities>
             </v-col>
           </v-row>
@@ -35,7 +35,7 @@
                 :thumb-size="24"
                 min="1"
                 max="6"
-                @change="$emit('onChangeTableFormat', tableFormat)"
+                @change="onChangeTableFormat"
                 :label="`Columns: ${tableFormat.toString()}`"
               ></v-slider>
             </v-col>
@@ -70,9 +70,10 @@
     </v-app-bar>
     <navigation-drawer
       v-model="drawer"
+      :extended="extendedTable"
       @onClickDecreaseFontSize="decreaseFontSize"
       @onClickIncreaseFontSize="increaseFontSize"
-      @onClickTableExtended="$emit('onChangeTableExtended')"
+      @onClickTableExtended="setExtendedTable"
     ></navigation-drawer>
   </v-card>
 </template>
@@ -101,7 +102,6 @@ export default {
   },
   data() {
     return {
-      extended: false,
       width: document.documentElement.clientWidth,
       height: document.documentElement.clientHeight,
       drawer: false,
@@ -124,8 +124,16 @@ export default {
         return "HTML Entities"
       }
     },
-    ...mapState(useAsciiTableStore, ['tableColumns']),
-    ...mapWritableState(useAsciiTableStore, ['setTableColumns', 'setSearch', 'increaseFontSize', 'decreaseFontSize', 'setSmallTable'])
+    ...mapState(useAsciiTableStore, ['tableColumns', 'extendedTable']),
+    ...mapWritableState(useAsciiTableStore, [
+      'getTable',
+      'setTableColumns',
+      'setExtendedTable',
+      'setSearch',
+      'increaseFontSize',
+      'decreaseFontSize',
+      'setSmallTable'
+    ])
   },
   watch: {
     width() {
@@ -142,20 +150,16 @@ export default {
   methods: {
     setTableFormat() {
       if (this.width < 650) {
-        this.$emit('onChangeTableFormat', 1)
-        this.setTableColumns(1)
+        this.onChangeTableFormat(1)
         this.tableFormat = 1
       } else if (this.width < 1000) {
-        this.$emit('onChangeTableFormat', 2)
-        this.setTableColumns(2)
+        this.onChangeTableFormat(2)
         this.tableFormat = 2
       } else if (this.width < 1350) {
-        this.$emit('onChangeTableFormat', 3)
-        this.setTableColumns(3)
+        this.onChangeTableFormat(3)
         this.tableFormat = 3
       } else {
-        this.$emit('onChangeTableFormat', 4)
-        this.setTableColumns(4)
+        this.onChangeTableFormat(4)
         this.tableFormat = 4
       }
     },
@@ -165,7 +169,11 @@ export default {
     },
     onChangeSearch(e) {
       this.setSearch(e)
-    }
+    },
+    onChangeTableFormat(e) {
+      this.setTableColumns(e)
+      this.getTable(e, this.extendedTable)
+    },
   }
 };
 </script>

@@ -3,7 +3,7 @@
     dense
     :value="extended"
     hide-details
-    @change="$emit('onClickTableExtended', extended)"
+    @change="$emit('onClickTableExtended')"
     :label="label"
   ></v-switch>
 </template>

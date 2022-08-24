@@ -8,7 +8,7 @@
     <v-container>
       <v-row no-gutters>
         <v-col align-self="center">
-          <html-entities @onClickTableExtended="$emit('onClickTableExtended')"></html-entities>
+          <html-entities :extended="extended" @onClickTableExtended="$emit('onClickTableExtended')"></html-entities>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -38,7 +38,8 @@ export default {
     HtmlEntities
   },
   props: {
-    value: Boolean
+    value: Boolean,
+    extended: Boolean
   }
 };
 </script>

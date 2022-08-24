@@ -1,4 +1,18 @@
 import { defineStore } from 'pinia/dist/pinia'
+import module from "@/assets/js/a.out";
+
+let instance = {
+  ready: new Promise(resolve => {
+    module({
+      onRuntimeInitialized() {
+        instance = Object.assign(this, {
+          ready: Promise.resolve()
+        });
+        resolve();
+      }
+    });
+  })
+};
 
 export const useAsciiTableStore = defineStore('AsciiTableStore', {
   state: () => {
@@ -13,6 +27,9 @@ export const useAsciiTableStore = defineStore('AsciiTableStore', {
     }
   },
   actions: {
+    getTable(value, ext) {
+      instance.ready.then(() => this.setTableData(instance.getTable(value, ext)))
+    },
     prepareData(data) {
       /*
       [
@@ -21,7 +38,6 @@ export const useAsciiTableStore = defineStore('AsciiTableStore', {
       ]
        */
       const parsed = JSON.parse(data);
-      console.log("parsed:", parsed);
       let headerData = []
       const cellData = []
 
@@ -45,8 +61,6 @@ export const useAsciiTableStore = defineStore('AsciiTableStore', {
         }
       })
 
-      console.log("cellData", cellData);
-
       return [headerData, cellData]
     },
     setTableData(data) {
@@ -55,8 +69,9 @@ export const useAsciiTableStore = defineStore('AsciiTableStore', {
     setSearch(value) {
       this.search = value
     },
-    setExtendedTable(extended) {
-      this.extendedTable = extended
+    setExtendedTable() {
+      this.extendedTable = !this.extendedTable
+      this.getTable(this.tableColumns, this.extendedTable)
     },
     setTableColumns(columns) {
       this.tableColumns = columns
