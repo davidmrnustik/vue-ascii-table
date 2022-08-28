@@ -3,5 +3,11 @@ module.exports = defineConfig({
   transpileDependencies: [
     'vuetify'
   ],
-  productionSourceMap: false
+  productionSourceMap: false,
+  pages: {
+    index: {
+      entry: "./src/main.js",
+      title: "ASCII Table"
+    }
+  }
 })
