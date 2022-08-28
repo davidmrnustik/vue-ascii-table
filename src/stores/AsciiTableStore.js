@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia/dist/pinia'
-import module from "@/assets/js/a.out";
+import module from "@/assets/js/ascii_table";
 
 let instance = {
   ready: new Promise(resolve => {
