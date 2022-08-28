@@ -2,6 +2,8 @@
 
 A vue.js project that loads c++ ascii table application exported to webassembly format wasm. Live demo here: https://ascii.davidmrnustik.com/index.html
 
+Ascii table C++ project repository: https://github.com/davidmrnustik/ascii-table
+
 ## Project setup
 ```
 npm install
