@@ -1,4 +1,6 @@
-# vue-vuetify-demo-cli
+# ASCII Table
+
+A vue.js project that loads c++ ascii table application exported to webassembly format wasm. Live demo here: https://ascii.davidmrnustik.com/index.html
 
 ## Project setup
 ```
